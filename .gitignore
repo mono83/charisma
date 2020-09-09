@@ -1,0 +1,10 @@
+/.idea/
+/target/
+/build/
+
+/*.iml
+/*.ini
+/*.yaml
+/*.yml
+/*.toml
+/*.txt
