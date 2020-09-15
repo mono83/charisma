@@ -1,5 +1,7 @@
 package com.github.mono83.charisma;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -24,6 +26,18 @@ class MutableWatcherDecorator<T extends Enum<T>> implements MutableValues<T> {
             listener.accept(new ValueChange<>(key, previous, value));
         }
         return null;
+    }
+
+    @Override
+    public Map<T, Long> set(final Collection<Map.Entry<T, Long>> pairs) {
+        Map<T, Long> previous = origin.set(pairs);
+        for (Map.Entry<T, Long> pair : pairs) {
+            Long prev = previous.get(pair.getKey());
+            if (prev == null || !prev.equals(pair.getValue())) {
+                listener.accept(new ValueChange<>(pair.getKey(), prev, pair.getValue()));
+            }
+        }
+        return previous;
     }
 
     @Override
