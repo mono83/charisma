@@ -1,6 +1,5 @@
 package com.github.mono83.charisma;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -48,5 +47,5 @@ public interface MutableValues<T extends Enum<T>> extends Values<T> {
      * @param pairs Key value pairs.
      * @return Map of previous values for modified keys.
      */
-    Map<T, Long> set(Collection<Map.Entry<T, Long>> pairs);
+    Map<T, Long> set(Map<T, Long> pairs);
 }

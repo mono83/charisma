@@ -1,6 +1,5 @@
 package com.github.mono83.charisma;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,10 +14,10 @@ class EnumMapMutable<T extends Enum<T>> extends EnumMapImmutable<T> implements M
     }
 
     @Override
-    public Map<T, Long> set(final Collection<Map.Entry<T, Long>> pairs) {
+    public Map<T, Long> set(final Map<T, Long> pairs) {
         HashMap<T, Long> previous = new HashMap<>(pairs.size());
         synchronized (this) {
-            for (Map.Entry<T, Long> pair : pairs) {
+            for (Map.Entry<T, Long> pair : pairs.entrySet()) {
                 Long prev = super.values.put(pair.getKey(), pair.getValue());
                 if (prev != null) {
                     previous.put(pair.getKey(), prev);
