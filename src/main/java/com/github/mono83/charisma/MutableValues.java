@@ -2,7 +2,7 @@ package com.github.mono83.charisma;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Mutable values collection.
@@ -25,7 +25,7 @@ public interface MutableValues<T extends Enum<T>> extends Values<T> {
      * @param listener Changes listener.
      * @return Values.
      */
-    static <T extends Enum<T>> MutableValues<T> from(final Map<T, Long> values, final BiConsumer<T, Long> listener) {
+    static <T extends Enum<T>> MutableValues<T> from(final Map<T, Long> values, final Consumer<ValueChange<T>> listener) {
         return new MutableWatcherDecorator<>(
                 new EnumMapMutable<>(Objects.requireNonNull(values, "values")),
                 listener

@@ -2,16 +2,16 @@ package com.github.mono83.charisma;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Decorator over mutable values collection, that invokes listener on value change.
  */
 class MutableWatcherDecorator<T extends Enum<T>> implements MutableValues<T> {
     private final MutableValues<T> origin;
-    private final BiConsumer<T, Long> listener;
+    private final Consumer<ValueChange<T>> listener;
 
-    MutableWatcherDecorator(final MutableValues<T> origin, final BiConsumer<T, Long> listener) {
+    MutableWatcherDecorator(final MutableValues<T> origin, final Consumer<ValueChange<T>> listener) {
         this.origin = Objects.requireNonNull(origin, "origin");
         this.listener = Objects.requireNonNull(listener, "listener");
     }
@@ -20,8 +20,8 @@ class MutableWatcherDecorator<T extends Enum<T>> implements MutableValues<T> {
     @Override
     public Long set(final T key, final long value) {
         Long previous = origin.set(key, value);
-        if (previous != null && previous != value) {
-            listener.accept(key, value);
+        if (previous == null || previous != value) {
+            listener.accept(new ValueChange<>(key, previous, value));
         }
         return null;
     }
