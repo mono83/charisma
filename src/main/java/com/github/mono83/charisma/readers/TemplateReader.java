@@ -72,6 +72,9 @@ public interface TemplateReader<T extends Enum<T>> {
      */
     default Collection<? extends Values<T>> readResource(final String name) throws IOException {
         try (InputStream is = getClass().getResourceAsStream(name)) {
+            if (is == null) {
+                throw new IOException("Unable to find resource " + name);
+            }
             return read(is);
         }
     }
@@ -86,6 +89,9 @@ public interface TemplateReader<T extends Enum<T>> {
      */
     default <Z> Collection<Z> readResource(final String name, final Function<Values<T>, Z> builder) throws IOException {
         try (InputStream is = getClass().getResourceAsStream(name)) {
+            if (is == null) {
+                throw new IOException("Unable to find resource " + name);
+            }
             return this.read(is).stream().map(builder).collect(Collectors.toList());
         }
     }
