@@ -1,5 +1,6 @@
 package com.github.mono83.charisma;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -37,6 +38,11 @@ class MutableWatcherDecorator<T extends Enum<T>> implements MutableValues<T> {
             }
         }
         return previous;
+    }
+
+    @Override
+    public Iterator<Map.Entry<T, Long>> iterator() {
+        return origin.iterator();
     }
 
     @Override

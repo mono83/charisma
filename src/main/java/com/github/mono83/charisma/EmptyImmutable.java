@@ -1,5 +1,8 @@
 package com.github.mono83.charisma;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
 
 class EmptyImmutable<T extends Enum<T>> implements Values<T> {
@@ -9,6 +12,16 @@ class EmptyImmutable<T extends Enum<T>> implements Values<T> {
     @Override
     public boolean contains(final T key) {
         return false;
+    }
+
+    @Override
+    public Iterator<Map.Entry<T, Long>> iterator() {
+        return Collections.emptyIterator();
+    }
+
+    @Override
+    public Map<T, Long> toMap() {
+        return Collections.emptyMap();
     }
 
     @Override

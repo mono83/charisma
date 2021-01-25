@@ -1,6 +1,7 @@
 package com.github.mono83.charisma;
 
 import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -14,6 +15,11 @@ class EnumMapImmutable<T extends Enum<T>> implements Values<T> {
     @Override
     public boolean contains(final T key) {
         return values.containsKey(key);
+    }
+
+    @Override
+    public Iterator<Map.Entry<T, Long>> iterator() {
+        return new UnmodifiableIterator<>(values.entrySet().iterator());
     }
 
     @Override

@@ -1,12 +1,13 @@
 package com.github.mono83.charisma;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * Immutable collection of values.
  */
-public interface Values<T extends Enum<T>> {
+public interface Values<T extends Enum<T>> extends Iterable<Map.Entry<T, Long>> {
     /**
      * Constructs new immutable values instance from given map.
      *
@@ -19,6 +20,23 @@ public interface Values<T extends Enum<T>> {
         }
 
         return new EnumMapImmutable<>(values);
+    }
+
+    /**
+     * Constructs new immutable values instance from given values.
+     *
+     * @param values Source values.
+     * @return Values.
+     */
+    static <T extends Enum<T>> Values<T> from(final Values<T> values) {
+        if (values == null) {
+            return new EmptyImmutable<>();
+        }
+        if (values instanceof MutableValues<?>) {
+            return from(values.toMap());
+        }
+
+        return values;
     }
 
     /**
@@ -36,6 +54,17 @@ public interface Values<T extends Enum<T>> {
      * @return Associated value.
      */
     Optional<Long> get(T key);
+
+    /**
+     * @return Values as map
+     */
+    default Map<T, Long> toMap() {
+        Map<T, Long> map = new HashMap<>();
+        for (Map.Entry<T, Long> e : this) {
+            map.put(e.getKey(), e.getValue());
+        }
+        return map;
+    }
 
     /**
      * Returns value, associated with key.
