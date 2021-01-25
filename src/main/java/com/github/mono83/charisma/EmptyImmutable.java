@@ -12,6 +12,11 @@ class EmptyImmutable<T extends Enum<T>> implements Values<T> {
     }
 
     @Override
+    public long mustGet(final T key) throws KeyMissingException {
+        throw new KeyMissingException(key);
+    }
+
+    @Override
     public Optional<Long> get(final T key) {
         return Optional.empty();
     }

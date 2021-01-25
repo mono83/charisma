@@ -38,6 +38,17 @@ public interface Values<T extends Enum<T>> {
     Optional<Long> get(T key);
 
     /**
+     * Returns value, associated with key.
+     *
+     * @param key Key to match.
+     * @return Associated value.
+     * @throws KeyMissingException If no key found.
+     */
+    default long mustGet(final T key) throws KeyMissingException {
+        return this.get(key).orElseThrow(() -> new KeyMissingException(key));
+    }
+
+    /**
      * Returns value associated with key or default value, if there is no value.
      *
      * @param key          Key to match.
