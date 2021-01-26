@@ -11,7 +11,18 @@ import java.util.Objects;
  * @param <T> Key type.
  */
 public interface Mutators<T extends Enum<T>> extends Iterable<Mutator<T>> {
+    /**
+     * Static constructor, that builds mutators collection from given
+     * iterable source.
+     *
+     * @param source Iterable source with mutators.
+     * @param <T>    Key type.
+     * @return Mutators.
+     */
     static <T extends Enum<T>> Mutators<T> of(final Iterable<Mutator<T>> source) {
+        if (source instanceof MutatorsSet) {
+            return (Mutators<T>) source;
+        }
         return new MutatorsSet<>(source);
     }
 
