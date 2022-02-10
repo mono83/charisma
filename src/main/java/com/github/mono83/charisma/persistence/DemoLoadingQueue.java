@@ -6,20 +6,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DemoLoadingQueue extends LoadingQueue<String> {
     @Override
     protected String performLoad(long id) {
-        return "Hello " + id;
+        return "";
     }
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-        DemoLoadingQueue queue = new DemoLoadingQueue();
-
-        long before = System.currentTimeMillis();
-        int parallel = 250;
-        int count = 10000;
-        int cardinality = count;
+    public static void runSingleMode(LoadingQueue<?> queue, int parallel, int count, int cardinalityCandidate) throws InterruptedException {
         Thread[] threads = new Thread[parallel];
         AtomicInteger counter = new AtomicInteger();
+        int cardinality = (cardinalityCandidate == 0 || cardinalityCandidate > count)
+                ? count
+                : cardinalityCandidate;
+
         for (int i = 0; i < parallel; i++) {
-            final boolean backwards =  i % 2 == 0;
+            final boolean backwards = i % 2 == 0;
             threads[i] = new Thread(() -> {
                 for (int j = 0; j < count; j++) {
                     try {
@@ -31,6 +29,9 @@ public class DemoLoadingQueue extends LoadingQueue<String> {
                 }
             });
         }
+
+        long before = System.currentTimeMillis();
+
         for (int i = 0; i < parallel; i++) {
             threads[i].start();
         }
@@ -39,18 +40,27 @@ public class DemoLoadingQueue extends LoadingQueue<String> {
             threads[i].join();
         }
 
-//        Thread.sleep(1000);
-
         long delta = System.currentTimeMillis() - before;
 
-        System.out.println("Total   " + counter.get());
-        System.out.println("Max     " + queue.queueMax);
-        System.out.println("Queue   " + queue.queueSize);
-        System.out.println("Queued  " + queue.queued);
         System.out.printf(
-                "Elapsed %.3fs. RPS is %d%n",
+                "Settings:%dT*%d%%%d   Served: %d   Queued: %d   MaxQ: %d   NowQ: %d   Elapsed: %.3fs   RPS: %d%n",
+                parallel,
+                count,
+                cardinality,
+                counter.get(),
+                queue.queued,
+                queue.queueMax,
+                queue.queueSize,
                 (float) delta / 1000.f,
                 count * parallel * 1000L / delta
         );
+    }
+
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        DemoLoadingQueue queue = new DemoLoadingQueue();
+
+        while (true) {
+            runSingleMode(queue, 200, 10000, 100);
+        }
     }
 }
