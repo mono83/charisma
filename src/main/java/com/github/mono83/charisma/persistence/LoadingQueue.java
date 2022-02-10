@@ -23,6 +23,10 @@ public abstract class LoadingQueue<T> {
      */
     private volatile Node<T> root;
     /**
+     * True if queue running.
+     */
+    private volatile boolean running = true;
+    /**
      * Cumulative counter of queued items.
      */
     volatile long queued = 0;
@@ -64,7 +68,7 @@ public abstract class LoadingQueue<T> {
      * Internal method that will run in dedicated thread and load data.
      */
     private void runnable() {
-        while (true) {
+        while (running) {
             long id = 0;
             Promise<T> promise = null;
             synchronized (lock) {
@@ -74,6 +78,7 @@ public abstract class LoadingQueue<T> {
                 }
             }
 
+            boolean wait = true;
             if (promise != null) {
                 // Loading
                 T data = performLoad(id);
@@ -92,14 +97,19 @@ public abstract class LoadingQueue<T> {
                     root = root.next;
                     queueSize--;
                 }
-            } else {
+
+                wait = root == null;
+            }
+            if (wait) {
                 try {
                     synchronized (notifier) {
                         notifier.wait();
                     }
                 } catch (InterruptedException e) {
                     // Graceful exit
-                    return;
+                    synchronized (lock) {
+                        running = false;
+                    }
                 }
             }
         }
@@ -113,6 +123,9 @@ public abstract class LoadingQueue<T> {
      */
     public Future<T> load(long id) {
         synchronized (lock) {
+            if (!running) {
+                throw new IllegalStateException("Queue " + getClass().getName() + " is stopped");
+            }
             Future<T> future = root == null ? null : root.find(id);
             if (future != null) {
                 // Found existing
@@ -132,15 +145,15 @@ public abstract class LoadingQueue<T> {
                 root.place(node);
             }
 
-            // Scheduling
-            synchronized (notifier) {
-                notifier.notify();
-            }
-
             queued++;
             queueSize++;
             if (queueSize > queueMax) {
                 queueMax = queueSize;
+            }
+
+            // Scheduling
+            synchronized (notifier) {
+                notifier.notify();
             }
 
             return promise;
